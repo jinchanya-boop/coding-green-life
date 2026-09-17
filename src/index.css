@@ -1,0 +1,85 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bg: #0D1F1C;
+  --color-bg-deep: #081512;
+  --color-surface: #14302A;
+  --color-surface-2: #1B3D34;
+  --color-surface-3: #234A40;
+  --color-mint: #5EEAD4;
+  --color-mint-dim: #3FA88F;
+  --color-gold: #F4B942;
+  --color-gold-dim: #C99530;
+  --color-coral: #F2765C;
+  --color-ink: #EAF4EF;
+  --color-ink-dim: #9FB8AE;
+  --color-ink-faint: #6C8A80;
+
+  --font-display: "Kanit", "Sarabun", sans-serif;
+  --font-body: "Sarabun", "Kanit", sans-serif;
+}
+
+html, body {
+  background: var(--color-bg);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-surface-3) transparent;
+}
+
+.font-display {
+  font-family: var(--font-display);
+}
+
+/* subtle topographic texture used behind the map, not decoration on every card */
+.eco-grid-bg {
+  background-image:
+    radial-gradient(circle at 20% 20%, rgba(94,234,212,0.06) 0, transparent 40%),
+    radial-gradient(circle at 80% 60%, rgba(244,185,66,0.05) 0, transparent 45%);
+}
+
+.path-line {
+  stroke: var(--color-surface-3);
+  stroke-width: 3;
+  stroke-dasharray: 2 10;
+  stroke-linecap: round;
+  fill: none;
+}
+
+@keyframes pulse-ring {
+  0% { box-shadow: 0 0 0 0 rgba(94,234,212,0.45); }
+  100% { box-shadow: 0 0 0 14px rgba(94,234,212,0); }
+}
+.pulse-ring {
+  animation: pulse-ring 2s ease-out infinite;
+}
+
+@keyframes drift-cloud {
+  from { transform: translateX(-15vw); }
+  to { transform: translateX(115vw); }
+}
+@keyframes fly-bird {
+  0% { transform: translate(-10vw, 0) scaleX(1); }
+  49% { transform: translate(50vw, -30px) scaleX(1); }
+  50% { transform: translate(50vw, -30px) scaleX(-1); }
+  100% { transform: translate(110vw, 10px) scaleX(-1); }
+}
+@keyframes sway-tree {
+  0%, 100% { transform: rotate(-2.5deg); }
+  50% { transform: rotate(2.5deg); }
+}
+.ambient-cloud { animation: drift-cloud linear infinite; }
+.ambient-bird { animation: fly-bird linear infinite; }
+.ambient-tree { animation: sway-tree ease-in-out infinite; transform-origin: bottom center; }
+
+@media (prefers-reduced-motion: reduce) {
+  .ambient-cloud, .ambient-bird, .ambient-tree, .pulse-ring { animation: none; }
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-mint);
+  outline-offset: 2px;
+}
