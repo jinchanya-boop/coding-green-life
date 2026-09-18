@@ -85,6 +85,13 @@ export default function Onboarding() {
           >
             เริ่มภารกิจ
           </button>
+
+          <button
+            onClick={() => navigate('/teacher')}
+            className="w-full text-center mt-4 text-xs text-[var(--color-ink-faint)] hover:text-[var(--color-ink-dim)]"
+          >
+            สำหรับครู
+          </button>
         </div>
       </div>
     </div>
