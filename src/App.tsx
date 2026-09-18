@@ -20,6 +20,7 @@ import NewProject from './pages/NewProject'
 import ProjectDetail from './pages/ProjectDetail'
 import BrowseProjects from './pages/BrowseProjects'
 import GreenPortfolio from './pages/GreenPortfolio'
+import SatisfactionSurvey from './pages/SatisfactionSurvey'
 
 function RequireProfile({ children }: { children: React.ReactElement }) {
   const { profile } = useStudent()
@@ -167,6 +168,14 @@ function Routed() {
         element={
           <RequireProfile>
             <GreenPortfolio />
+          </RequireProfile>
+        }
+      />
+      <Route
+        path="/survey"
+        element={
+          <RequireProfile>
+            <SatisfactionSurvey />
           </RequireProfile>
         }
       />

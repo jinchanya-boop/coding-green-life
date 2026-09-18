@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react'
-import { supabaseEnabled, fetchStudents, fetchAttempts, fetchReflections } from '../lib/supabase'
+import { supabaseEnabled, fetchStudents, fetchAttempts, fetchReflections, fetchAllSatisfactionSurveys } from '../lib/supabase'
 import { MISSIONS } from '../data/missions'
 import { RubricEditor } from '../components/RubricEditor'
 import { ClassAnalytics } from '../components/ClassAnalytics'
 import { InterventionAlerts } from '../components/InterventionAlerts'
+import { SatisfactionSummary } from '../components/SatisfactionSummary'
 import { SKILL_LABEL } from '../data/assessmentContent'
 import type { AssessmentSkill } from '../types'
 import { useNavigate } from 'react-router-dom'
@@ -70,6 +71,9 @@ export default function TeacherDashboard() {
   const [students, setStudents] = useState<StudentRow[]>([])
   const [attempts, setAttempts] = useState<AttemptRow[]>([])
   const [reflections, setReflections] = useState<ReflectionRow[]>([])
+  const [surveys, setSurveys] = useState<
+    { fun_score: number; understanding_score: number; self_motivation_score: number; real_life_score: number; overall_score: number; comment: string | null }[]
+  >([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [selectedId, setSelectedId] = useState<string | null>(null)
@@ -79,11 +83,12 @@ export default function TeacherDashboard() {
       setLoading(false)
       return
     }
-    Promise.all([fetchStudents(), fetchAttempts(), fetchReflections()])
-      .then(([s, a, r]) => {
+    Promise.all([fetchStudents(), fetchAttempts(), fetchReflections(), fetchAllSatisfactionSurveys()])
+      .then(([s, a, r, sv]) => {
         setStudents(s as StudentRow[])
         setAttempts(a as AttemptRow[])
         setReflections(r as ReflectionRow[])
+        setSurveys(sv as typeof surveys)
       })
       .catch((e) => setError(e instanceof Error ? e.message : 'โหลดข้อมูลไม่สำเร็จ'))
       .finally(() => setLoading(false))
@@ -204,6 +209,7 @@ export default function TeacherDashboard() {
 
             <ClassAnalytics students={students} />
             <InterventionAlerts students={students} />
+            <SatisfactionSummary surveys={surveys} />
 
             <div className="rounded-xl border border-[var(--color-surface-3)] overflow-hidden" style={{ background: 'var(--color-surface)' }}>
               <table className="w-full text-sm">

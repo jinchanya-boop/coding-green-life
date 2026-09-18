@@ -12,6 +12,10 @@ dist
 dist-ssr
 *.local
 
+# Local environment variables (contains Supabase keys) — never commit this.
+# GitHub Actions gets its own copy via repository secrets instead.
+.env
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

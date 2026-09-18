@@ -129,3 +129,28 @@ drop policy if exists "allow all peer_feedback" on peer_feedback;
 create policy "allow all peer_feedback" on peer_feedback for all using (true) with check (true);
 drop policy if exists "allow all rubric_scores" on rubric_scores;
 create policy "allow all rubric_scores" on rubric_scores for all using (true) with check (true);
+
+-- ============================================================
+-- Phase: Satisfaction Survey
+-- Safe to re-run.
+-- ============================================================
+
+create table if not exists satisfaction_survey (
+  id bigint generated always as identity primary key,
+  student_id uuid not null references students(id) on delete cascade,
+  fun_score int not null check (fun_score between 1 and 5),
+  understanding_score int not null check (understanding_score between 1 and 5),
+  self_motivation_score int not null check (self_motivation_score between 1 and 5),
+  real_life_score int not null check (real_life_score between 1 and 5),
+  overall_score int not null check (overall_score between 1 and 5),
+  comment text,
+  created_at timestamptz not null default now(),
+  unique (student_id)
+);
+
+create index if not exists idx_satisfaction_student on satisfaction_survey(student_id);
+
+alter table satisfaction_survey enable row level security;
+
+drop policy if exists "allow all satisfaction_survey" on satisfaction_survey;
+create policy "allow all satisfaction_survey" on satisfaction_survey for all using (true) with check (true);

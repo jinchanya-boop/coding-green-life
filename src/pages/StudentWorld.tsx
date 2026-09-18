@@ -150,6 +150,26 @@ export default function StudentWorld() {
           </button>
         )}
 
+        {profile.postTest && (
+          <button
+            onClick={() => navigate('/survey')}
+            className="w-full flex items-center gap-4 rounded-xl p-4 border mb-8 text-left transition-transform hover:scale-[1.01]"
+            style={{ background: 'var(--color-surface)', borderColor: 'var(--color-surface-3)' }}
+          >
+            <div
+              className="w-12 h-12 rounded-full flex items-center justify-center text-2xl shrink-0"
+              style={{ background: 'rgba(94,234,212,0.12)', border: '2px solid var(--color-mint)' }}
+            >
+              🌟
+            </div>
+            <div className="flex-1">
+              <p className="font-display font-medium">แบบสำรวจความพึงพอใจ</p>
+              <p className="text-xs text-[var(--color-ink-dim)]">บอกความรู้สึกของเธอที่มีต่อ Coding for Green Life ให้ครูฟังหน่อย</p>
+            </div>
+            <span className="text-[var(--color-ink-dim)] shrink-0">→</span>
+          </button>
+        )}
+
         <GreenCityBanner />
 
         <div className="flex items-center justify-between mb-6">

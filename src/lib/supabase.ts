@@ -162,3 +162,27 @@ export async function fetchAllRubrics() {
   if (error) throw error
   return data ?? []
 }
+
+// ---------------------------------------------------------------------------
+// Satisfaction Survey
+// ---------------------------------------------------------------------------
+
+export async function submitSatisfactionSurvey(row: Record<string, unknown>) {
+  if (!supabase) return
+  const { error } = await supabase.from('satisfaction_survey').upsert(row, { onConflict: 'student_id' })
+  if (error) throw error
+}
+
+export async function fetchMySatisfactionSurvey(studentId: string) {
+  if (!supabase) return null
+  const { data, error } = await supabase.from('satisfaction_survey').select('*').eq('student_id', studentId).maybeSingle()
+  if (error) throw error
+  return data
+}
+
+export async function fetchAllSatisfactionSurveys() {
+  if (!supabase) return []
+  const { data, error } = await supabase.from('satisfaction_survey').select('*')
+  if (error) throw error
+  return data ?? []
+}
