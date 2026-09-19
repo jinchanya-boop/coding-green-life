@@ -6,6 +6,7 @@ import { GreenCollectorGame, type CollectorResult } from '../components/GreenCol
 import { MISSIONS } from '../data/missions'
 import { ANALYSIS_QUESTIONS, WASTE_ITEMS, WEEKLY_DATA } from '../data/mission1Content'
 import { useStudent } from '../context/StudentContext'
+import { shuffleOptions } from '../lib/shuffle'
 
 const mission = MISSIONS.find((m) => m.id === 'm1')!
 
@@ -26,6 +27,10 @@ export default function Mission1GreenDetective() {
   const [finalScore, setFinalScore] = useState(0)
 
   const currentQ = ANALYSIS_QUESTIONS[analysisIndex]
+  const { options: shuffledOptions, correctIndex: shuffledCorrectIndex } = useMemo(
+    () => shuffleOptions(currentQ.options, currentQ.correctIndex),
+    [currentQ.id]
+  )
 
   const maxBar = useMemo(() => Math.max(...WEEKLY_DATA.map((d) => d.count)), [])
 
@@ -36,7 +41,7 @@ export default function Mission1GreenDetective() {
 
   const handleAnalysisAnswer = () => {
     if (analysisFeedback || analysisSelected === null) return
-    const correct = analysisSelected === currentQ.correctIndex
+    const correct = analysisSelected === shuffledCorrectIndex
     if (correct) setAnalysisCorrect((c) => c + 1)
     setAnalysisFeedback({ correct, text: correct ? 'วิเคราะห์ถูกต้อง!' : 'ลองทบทวนข้อมูลอีกครั้ง' })
   }
@@ -127,8 +132,8 @@ export default function Mission1GreenDetective() {
             <p className="text-sm font-medium">{currentQ.prompt}</p>
           </div>
           <div className="space-y-2.5">
-            {currentQ.options.map((opt, idx) => {
-              const isChosenCorrect = analysisFeedback && idx === currentQ.correctIndex
+            {shuffledOptions.map((opt, idx) => {
+              const isChosenCorrect = analysisFeedback && idx === shuffledCorrectIndex
               const isPicked = analysisSelected === idx
               return (
                 <button

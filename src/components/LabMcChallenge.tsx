@@ -1,15 +1,17 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import type { McChallenge } from '../data/codingLab'
+import { shuffleOptions } from '../lib/shuffle'
 
 const OPTION_COLORS = ['#5EEAD4', '#F4B942', '#8FD694', '#38BDF8']
 
 export function LabMcChallenge({ challenge, onAnswered }: { challenge: McChallenge; onAnswered: (correct: boolean) => void }) {
   const [selected, setSelected] = useState<number | null>(null)
   const [feedback, setFeedback] = useState<{ correct: boolean } | null>(null)
+  const { options, correctIndex } = useMemo(() => shuffleOptions(challenge.options, challenge.correctIndex), [challenge.id])
 
   const handleConfirm = () => {
     if (selected === null || feedback) return
-    const correct = selected === challenge.correctIndex
+    const correct = selected === correctIndex
     setFeedback({ correct })
   }
 
@@ -21,9 +23,9 @@ export function LabMcChallenge({ challenge, onAnswered }: { challenge: McChallen
         <p className="text-sm font-medium">{challenge.prompt}</p>
       </div>
       <div className="space-y-2.5">
-        {challenge.options.map((opt, idx) => {
+        {options.map((opt, idx) => {
           const color = OPTION_COLORS[idx % OPTION_COLORS.length]
-          const isChosenCorrect = feedback && idx === challenge.correctIndex
+          const isChosenCorrect = feedback && idx === correctIndex
           const isPicked = selected === idx
           return (
             <button

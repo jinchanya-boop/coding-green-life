@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { MissionShell } from '../components/MissionShell'
 import { ReflectionForm, type ReflectionAnswers } from '../components/ReflectionForm'
@@ -13,6 +13,7 @@ import {
   PATTERN_QUESTIONS,
 } from '../data/mission2Content'
 import { useStudent } from '../context/StudentContext'
+import { shuffleOptions } from '../lib/shuffle'
 
 const mission = MISSIONS.find((m) => m.id === 'm2')!
 const OPTION_COLORS = ['#5EEAD4', '#F4B942', '#8FD694', '#38BDF8']
@@ -41,10 +42,18 @@ export default function Mission2ThinkBeforeCode() {
 
   const patternQ = PATTERN_QUESTIONS[patternIndex]
   const abstractionQ = ABSTRACTION_QUESTIONS[0]
+  const { options: shuffledPatternOptions, correctIndex: shuffledPatternCorrectIndex } = useMemo(
+    () => shuffleOptions(patternQ.options, patternQ.correctIndex),
+    [patternQ.id]
+  )
+  const { options: shuffledAbstractionOptions, correctIndex: shuffledAbstractionCorrectIndex } = useMemo(
+    () => shuffleOptions(abstractionQ.options, abstractionQ.correctIndex),
+    [abstractionQ.id]
+  )
 
   const handlePatternAnswer = () => {
     if (patternFeedback || patternSelected === null) return
-    const correct = patternSelected === patternQ.correctIndex
+    const correct = patternSelected === shuffledPatternCorrectIndex
     if (correct) setPatternCorrect((c) => c + 1)
     else setErrorTypes((prev) => [...prev, `Pattern: ${patternQ.prompt} — ${patternQ.explain}`])
     setPatternFeedback({ correct, text: patternQ.explain })
@@ -59,7 +68,7 @@ export default function Mission2ThinkBeforeCode() {
 
   const handleAbstractionAnswer = () => {
     if (abstractionFeedback || abstractionSelected === null) return
-    const correct = abstractionSelected === abstractionQ.correctIndex
+    const correct = abstractionSelected === shuffledAbstractionCorrectIndex
     if (correct) setAbstractionCorrect(1)
     else setErrorTypes((prev) => [...prev, `Abstraction: ${abstractionQ.explain}`])
     setAbstractionFeedback({ correct, text: abstractionQ.explain })
@@ -176,9 +185,9 @@ export default function Mission2ThinkBeforeCode() {
             </div>
           </div>
           <div className="space-y-2.5">
-            {patternQ.options.map((opt, idx) => {
+            {shuffledPatternOptions.map((opt, idx) => {
               const color = OPTION_COLORS[idx % OPTION_COLORS.length]
-              const isChosenCorrect = patternFeedback && idx === patternQ.correctIndex
+              const isChosenCorrect = patternFeedback && idx === shuffledPatternCorrectIndex
               const isPicked = patternSelected === idx
               return (
                 <button
@@ -243,9 +252,9 @@ export default function Mission2ThinkBeforeCode() {
             <p className="text-sm font-medium">{abstractionQ.prompt}</p>
           </div>
           <div className="space-y-2.5">
-            {abstractionQ.options.map((opt, idx) => {
+            {shuffledAbstractionOptions.map((opt, idx) => {
               const color = OPTION_COLORS[idx % OPTION_COLORS.length]
-              const isChosenCorrect = abstractionFeedback && idx === abstractionQ.correctIndex
+              const isChosenCorrect = abstractionFeedback && idx === shuffledAbstractionCorrectIndex
               const isPicked = abstractionSelected === idx
               return (
                 <button

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { MissionShell } from '../components/MissionShell'
 import { ReflectionForm, type ReflectionAnswers } from '../components/ReflectionForm'
@@ -7,6 +7,7 @@ import { GreenSorterGame, type SorterResult } from '../components/GreenSorterGam
 import { MISSIONS } from '../data/missions'
 import { ALGO_CHECK_QUESTIONS } from '../data/mission5Content'
 import { useStudent } from '../context/StudentContext'
+import { shuffleOptions } from '../lib/shuffle'
 
 const mission = MISSIONS.find((m) => m.id === 'm5')!
 const OPTION_COLORS = ['#5EEAD4', '#F4B942', '#8FD694', '#38BDF8']
@@ -25,6 +26,10 @@ export default function Mission5GreenSorter() {
   const [finalScore, setFinalScore] = useState(0)
 
   const checkQ = ALGO_CHECK_QUESTIONS[checkIndex]
+  const { options: shuffledCheckOptions, correctIndex: shuffledCheckCorrectIndex } = useMemo(
+    () => shuffleOptions(checkQ.options, checkQ.correctIndex),
+    [checkQ.id]
+  )
 
   const handleSortComplete = (result: SorterResult) => {
     setSortResult(result)
@@ -33,7 +38,7 @@ export default function Mission5GreenSorter() {
 
   const handleCheckAnswer = () => {
     if (checkFeedback || checkSelected === null) return
-    const correct = checkSelected === checkQ.correctIndex
+    const correct = checkSelected === shuffledCheckCorrectIndex
     if (correct) setCheckCorrect((c) => c + 1)
     setCheckFeedback({ correct, text: checkQ.explain })
   }
@@ -103,9 +108,9 @@ export default function Mission5GreenSorter() {
             <p className="text-sm font-medium">{checkQ.prompt}</p>
           </div>
           <div className="space-y-2.5">
-            {checkQ.options.map((opt, idx) => {
+            {shuffledCheckOptions.map((opt, idx) => {
               const color = OPTION_COLORS[idx % OPTION_COLORS.length]
-              const isChosenCorrect = checkFeedback && idx === checkQ.correctIndex
+              const isChosenCorrect = checkFeedback && idx === shuffledCheckCorrectIndex
               const isPicked = checkSelected === idx
               return (
                 <button

@@ -1,9 +1,10 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { AmbientBackground } from '../components/AmbientBackground'
 import { Mascot } from '../components/Mascot'
 import { ASSESSMENT_QUESTIONS, SKILL_LABEL } from '../data/assessmentContent'
 import { useStudent } from '../context/StudentContext'
+import { shuffleOptions } from '../lib/shuffle'
 import type { AssessmentSkill } from '../types'
 
 const OPTION_COLORS = ['#5EEAD4', '#F4B942', '#8FD694', '#38BDF8']
@@ -23,11 +24,12 @@ export default function Assessment() {
 
   const q = ASSESSMENT_QUESTIONS[index]
   const isLast = index === ASSESSMENT_QUESTIONS.length - 1
+  const { options: shuffledOptions, correctIndex: shuffledCorrectIndex } = useMemo(() => shuffleOptions(q.options, q.correctIndex), [q.id])
 
   const handleConfirm = () => {
     if (selected === null || confirmed) return
     setConfirmed(true)
-    setResults((prev) => ({ ...prev, [q.id]: selected === q.correctIndex }))
+    setResults((prev) => ({ ...prev, [q.id]: selected === shuffledCorrectIndex }))
   }
 
   const handleNext = () => {
@@ -104,9 +106,9 @@ export default function Assessment() {
               <p className="text-sm font-medium">{q.prompt}</p>
             </div>
             <div className="space-y-2.5">
-              {q.options.map((opt, idx) => {
+              {shuffledOptions.map((opt, idx) => {
                 const color = OPTION_COLORS[idx % OPTION_COLORS.length]
-                const isChosenCorrect = confirmed && idx === q.correctIndex
+                const isChosenCorrect = confirmed && idx === shuffledCorrectIndex
                 const isPicked = selected === idx
                 return (
                   <button
