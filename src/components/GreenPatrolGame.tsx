@@ -28,6 +28,10 @@ const ROUND_SECONDS = 25
 const MOVE_TICK_MS = 170 // player step speed
 const GHOST_TICK_EVERY = 2 // ghosts move every Nth tick (slower than player)
 const MAX_LIVES = 3
+const TRASH_EMOJIS = ['🍌', '🥤', '🧻', '📦', '🍾', '🔋']
+const BONUS_EMOJI = '♻️'
+const BONUS_SPAWN_EVERY_TICKS = 30 // roughly every ~5s at 170ms/tick
+const BONUS_LIFETIME_TICKS = 24 // disappears if not collected in time
 
 type Dir = 'up' | 'down' | 'left' | 'right' | null
 
@@ -52,17 +56,31 @@ function canStep(col: number, row: number, dir: Dir): boolean {
 const ALL_DIRS: Dir[] = ['up', 'down', 'left', 'right']
 const OPPOSITE: Record<string, Dir> = { up: 'down', down: 'up', left: 'right', right: 'left' }
 
-function buildInitialDots(): Set<string> {
-  const dots = new Set<string>()
+function buildInitialDots(): Map<string, string> {
+  const dots = new Map<string, string>()
+  let i = 0
   for (let r = 0; r < ROWS; r++) {
     for (let c = 0; c < COLS; c++) {
-      if (MAZE[r][c] === '.') dots.add(`${c},${r}`)
+      if (MAZE[r][c] === '.') {
+        dots.set(`${c},${r}`, TRASH_EMOJIS[i % TRASH_EMOJIS.length])
+        i++
+      }
     }
   }
   dots.delete(`${PLAYER_START.col},${PLAYER_START.row}`)
   GHOST_STARTS.forEach((g) => dots.delete(`${g.col},${g.row}`))
   return dots
 }
+
+const OPEN_CELLS: { col: number; row: number }[] = (() => {
+  const cells: { col: number; row: number }[] = []
+  for (let r = 0; r < ROWS; r++) {
+    for (let c = 0; c < COLS; c++) {
+      if (MAZE[r][c] === '.') cells.push({ col: c, row: r })
+    }
+  }
+  return cells
+})()
 
 export function GreenPatrolGame({ onComplete }: { onComplete: (bonusScore: number) => void }) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -76,6 +94,7 @@ export function GreenPatrolGame({ onComplete }: { onComplete: (bonusScore: numbe
   const heldDirRef = useRef<Dir>(null)
   const ghostsRef = useRef(GHOST_STARTS.map((g) => ({ ...g, dir: 'up' as Dir })))
   const dotsRef = useRef(buildInitialDots())
+  const bonusRef = useRef<{ col: number; row: number; ticksLeft: number } | null>(null)
   const scoreRef = useRef(0)
   const livesRef = useRef(MAX_LIVES)
   const invulnRef = useRef(0)
@@ -129,12 +148,35 @@ export function GreenPatrolGame({ onComplete }: { onComplete: (bonusScore: numbe
           playerRef.current = next
           facingRef.current = dir
           const key = `${next.col},${next.row}`
+          const bonus = bonusRef.current
+          if (bonus && bonus.col === next.col && bonus.row === next.row) {
+            bonusRef.current = null
+            scoreRef.current += 20
+            setScore(scoreRef.current)
+          }
           if (dotsRef.current.has(key)) {
             dotsRef.current.delete(key)
             scoreRef.current += 5
             setScore(scoreRef.current)
             if (dotsRef.current.size === 0) finish()
           }
+        }
+      }
+
+      // --- bonus trash spawn/expire ---
+      if (bonusRef.current) {
+        bonusRef.current.ticksLeft--
+        if (bonusRef.current.ticksLeft <= 0) bonusRef.current = null
+      } else if (tickCountRef.current % BONUS_SPAWN_EVERY_TICKS === 0) {
+        const pp2 = playerRef.current
+        const free = OPEN_CELLS.filter(
+          (cell) =>
+            !(cell.col === pp2.col && cell.row === pp2.row) &&
+            !ghostsRef.current.some((g) => g.col === cell.col && g.row === cell.row)
+        )
+        if (free.length > 0) {
+          const spot = free[Math.floor(Math.random() * free.length)]
+          bonusRef.current = { col: spot.col, row: spot.row, ticksLeft: BONUS_LIFETIME_TICKS }
         }
       }
 
@@ -193,14 +235,26 @@ export function GreenPatrolGame({ onComplete }: { onComplete: (bonusScore: numbe
         }
       }
 
-      // dots
-      ctx.fillStyle = '#5EEAD4'
-      dotsRef.current.forEach((key) => {
+      // dots (trash items)
+      ctx.font = '16px sans-serif'
+      ctx.textAlign = 'center'
+      ctx.textBaseline = 'middle'
+      dotsRef.current.forEach((emoji, key) => {
         const [c, r] = key.split(',').map(Number)
-        ctx.beginPath()
-        ctx.arc(c * CELL + CELL / 2, r * CELL + CELL / 2, 5, 0, Math.PI * 2)
-        ctx.fill()
+        ctx.fillText(emoji, c * CELL + CELL / 2, r * CELL + CELL / 2)
       })
+
+      // bonus trash (recycle symbol, pulsing)
+      const bonus = bonusRef.current
+      if (bonus) {
+        const pulse = 1 + 0.15 * Math.sin(tickCountRef.current * 0.6)
+        ctx.save()
+        ctx.translate(bonus.col * CELL + CELL / 2, bonus.row * CELL + CELL / 2)
+        ctx.scale(pulse, pulse)
+        ctx.font = '26px sans-serif'
+        ctx.fillText(BONUS_EMOJI, 0, 0)
+        ctx.restore()
+      }
 
       // ghosts
       ghostsRef.current.forEach((g) => {
@@ -254,9 +308,9 @@ export function GreenPatrolGame({ onComplete }: { onComplete: (bonusScore: numbe
   return (
     <div className="space-y-4">
       <div className="text-center">
-        <p className="font-display text-lg font-semibold">🟢 Green Patrol: ลาดตระเวนเก็บใบไม้! รอบโบนัส</p>
+        <p className="font-display text-lg font-semibold">🟢 Green Patrol: ลาดตระเวนเก็บขยะ! รอบโบนัส</p>
         <p className="text-xs text-[var(--color-ink-dim)] mt-1">
-          ใช้ปุ่มลูกศร (หรือ WASD) เดินเก็บจุดสีเขียวในเขาวงกต หลบตัวร้ายสีส้มให้ไว!
+          ใช้ปุ่มลูกศร (หรือ WASD) เดินเก็บขยะที่กระจายอยู่ในเขาวงกต ระวังโบนัสขยะชิ้นใหญ่ (♻️) ที่โผล่มาเป็นครั้งคราวด้วยนะ! หลบตัวร้ายมลพิษสีส้มให้ไว
         </p>
       </div>
 
