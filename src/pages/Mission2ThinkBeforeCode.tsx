@@ -4,7 +4,7 @@ import { MissionShell } from '../components/MissionShell'
 import { ReflectionForm, type ReflectionAnswers } from '../components/ReflectionForm'
 import { OrderingActivity } from '../components/OrderingActivity'
 import { Mascot } from '../components/Mascot'
-import { WhackATrashGame } from '../components/WhackATrashGame'
+import { GreenPatrolGame } from '../components/GreenPatrolGame'
 import { MISSIONS } from '../data/missions'
 import {
   ABSTRACTION_QUESTIONS,
@@ -149,7 +149,7 @@ export default function Mission2ThinkBeforeCode() {
       )}
 
       {stage === 'bonus1' && (
-        <WhackATrashGame
+        <GreenPatrolGame
           onComplete={(bonus) => {
             setBonusTotal((t) => t + bonus)
             setStage('pattern')
@@ -233,7 +233,7 @@ export default function Mission2ThinkBeforeCode() {
       )}
 
       {stage === 'bonus2' && (
-        <WhackATrashGame
+        <GreenPatrolGame
           onComplete={(bonus) => {
             setBonusTotal((t) => t + bonus)
             setStage('abstraction')
@@ -300,7 +300,7 @@ export default function Mission2ThinkBeforeCode() {
       )}
 
       {stage === 'bonus3' && (
-        <WhackATrashGame
+        <GreenPatrolGame
           onComplete={(bonus) => {
             setBonusTotal((t) => t + bonus)
             setStage('algorithm')
