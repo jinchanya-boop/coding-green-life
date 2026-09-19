@@ -67,10 +67,11 @@ export default function CodingLabLevel() {
             <p className="text-xs text-[var(--color-ink-dim)]">
               ข้อที่ {index + 1} / {level.challenges.length}
             </p>
-            {challenge.type === 'mc' && <LabMcChallenge challenge={challenge} onAnswered={advance} />}
-            {challenge.type === 'open' && <LabOpenChallenge challenge={challenge} onAnswered={advance} />}
+            {challenge.type === 'mc' && <LabMcChallenge key={challenge.id} challenge={challenge} onAnswered={advance} />}
+            {challenge.type === 'open' && <LabOpenChallenge key={challenge.id} challenge={challenge} onAnswered={advance} />}
             {challenge.type === 'order' && (
               <OrderingActivity
+                key={challenge.id}
                 goal={challenge.goal}
                 steps={challenge.steps}
                 onChecked={(fraction) => advance(fraction >= 0.75)}
