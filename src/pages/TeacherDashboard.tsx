@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { supabaseEnabled, fetchStudents, fetchAttempts, fetchReflections, fetchAllSatisfactionSurveys, fetchAllRubrics } from '../lib/supabase'
+import { supabaseEnabled, fetchStudents, fetchAttempts, fetchReflections, fetchAllSatisfactionSurveys, fetchAllRubrics, deleteStudent } from '../lib/supabase'
 import { MISSIONS } from '../data/missions'
 import { RubricEditor } from '../components/RubricEditor'
 import { RubricClassSummary } from '../components/RubricClassSummary'
@@ -261,9 +261,27 @@ export default function TeacherDashboard() {
                   <p className="font-display font-medium text-[var(--color-ink)]">
                     {selected.name} · {selected.class_name}
                   </p>
-                  <button onClick={() => setSelectedId(null)} className="text-xs text-[var(--color-ink-dim)]">
-                    ปิด ✕
-                  </button>
+                  <div className="flex items-center gap-3">
+                    <button
+                      onClick={async () => {
+                        if (!window.confirm(`ลบข้อมูลของ "${selected.name}" ทั้งหมดถาวร (คะแนน, Reflection, Rubric, ผลสำรวจ) ใช่ไหม? กู้คืนไม่ได้`)) return
+                        try {
+                          await deleteStudent(selected.id)
+                          setStudents((prev) => prev.filter((s) => s.id !== selected.id))
+                          setSelectedId(null)
+                        } catch (e) {
+                          alert('ลบไม่สำเร็จ: ' + (e instanceof Error ? e.message : 'unknown error'))
+                        }
+                      }}
+                      className="text-xs px-2 py-1 rounded border"
+                      style={{ color: 'var(--color-coral)', borderColor: 'var(--color-coral)' }}
+                    >
+                      🗑️ ลบนักเรียนคนนี้
+                    </button>
+                    <button onClick={() => setSelectedId(null)} className="text-xs text-[var(--color-ink-dim)]">
+                      ปิด ✕
+                    </button>
+                  </div>
                 </div>
 
                 <div>

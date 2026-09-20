@@ -71,6 +71,12 @@ export async function fetchStudents() {
   return data ?? []
 }
 
+export async function deleteStudent(id: string) {
+  if (!supabase) return
+  const { error } = await supabase.from('students').delete().eq('id', id)
+  if (error) throw error
+}
+
 export async function fetchAttempts() {
   if (!supabase) return []
   const { data, error } = await supabase.from('mission_attempts').select('*').order('completed_at', { ascending: false })
