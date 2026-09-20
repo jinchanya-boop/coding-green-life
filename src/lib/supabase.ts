@@ -77,6 +77,12 @@ export async function deleteStudent(id: string) {
   if (error) throw error
 }
 
+export async function updateStudentClass(id: string, className: string) {
+  if (!supabase) return
+  const { error } = await supabase.from('students').update({ class_name: className }).eq('id', id)
+  if (error) throw error
+}
+
 export async function fetchAttempts() {
   if (!supabase) return []
   const { data, error } = await supabase.from('mission_attempts').select('*').order('completed_at', { ascending: false })

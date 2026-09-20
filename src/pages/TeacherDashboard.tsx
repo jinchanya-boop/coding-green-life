@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { supabaseEnabled, fetchStudents, fetchAttempts, fetchReflections, fetchAllSatisfactionSurveys, fetchAllRubrics, deleteStudent } from '../lib/supabase'
+import { supabaseEnabled, fetchStudents, fetchAttempts, fetchReflections, fetchAllSatisfactionSurveys, fetchAllRubrics, deleteStudent, updateStudentClass } from '../lib/supabase'
 import { MISSIONS } from '../data/missions'
 import { RubricEditor } from '../components/RubricEditor'
 import { RubricClassSummary } from '../components/RubricClassSummary'
@@ -79,6 +79,8 @@ export default function TeacherDashboard() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [selectedId, setSelectedId] = useState<string | null>(null)
+  const [editingClass, setEditingClass] = useState(false)
+  const [classInput, setClassInput] = useState('')
 
   useEffect(() => {
     if (!supabaseEnabled) {
@@ -258,9 +260,48 @@ export default function TeacherDashboard() {
             {selected && (
               <div className="rounded-xl p-5 border border-[var(--color-surface-3)] space-y-4" style={{ background: 'var(--color-surface)' }}>
                 <div className="flex items-center justify-between">
-                  <p className="font-display font-medium text-[var(--color-ink)]">
-                    {selected.name} · {selected.class_name}
-                  </p>
+                  <div className="flex items-center gap-2">
+                    <p className="font-display font-medium text-[var(--color-ink)]">{selected.name} ·</p>
+                    {editingClass ? (
+                      <>
+                        <input
+                          value={classInput}
+                          onChange={(e) => setClassInput(e.target.value)}
+                          className="text-sm rounded px-2 py-1 bg-[var(--color-surface-2)] border border-[var(--color-surface-3)] text-[var(--color-ink)] w-24"
+                          placeholder="ม.2/3"
+                        />
+                        <button
+                          onClick={async () => {
+                            try {
+                              await updateStudentClass(selected.id, classInput)
+                              setStudents((prev) => prev.map((s) => (s.id === selected.id ? { ...s, class_name: classInput } : s)))
+                              setEditingClass(false)
+                            } catch (e) {
+                              alert('บันทึกไม่สำเร็จ: ' + (e instanceof Error ? e.message : 'unknown error'))
+                            }
+                          }}
+                          className="text-xs px-2 py-1 rounded"
+                          style={{ background: 'var(--color-mint)', color: 'var(--color-bg-deep)' }}
+                        >
+                          บันทึก
+                        </button>
+                        <button onClick={() => setEditingClass(false)} className="text-xs text-[var(--color-ink-dim)]">
+                          ยกเลิก
+                        </button>
+                      </>
+                    ) : (
+                      <button
+                        onClick={() => {
+                          setClassInput(selected.class_name)
+                          setEditingClass(true)
+                        }}
+                        className="font-display font-medium text-[var(--color-ink)] underline decoration-dotted"
+                        title="คลิกเพื่อแก้ไขห้อง"
+                      >
+                        {selected.class_name} ✏️
+                      </button>
+                    )}
+                  </div>
                   <div className="flex items-center gap-3">
                     <button
                       onClick={async () => {
@@ -278,7 +319,13 @@ export default function TeacherDashboard() {
                     >
                       🗑️ ลบนักเรียนคนนี้
                     </button>
-                    <button onClick={() => setSelectedId(null)} className="text-xs text-[var(--color-ink-dim)]">
+                    <button
+                      onClick={() => {
+                        setSelectedId(null)
+                        setEditingClass(false)
+                      }}
+                      className="text-xs text-[var(--color-ink-dim)]"
+                    >
                       ปิด ✕
                     </button>
                   </div>
