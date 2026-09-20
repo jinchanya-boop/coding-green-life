@@ -1,12 +1,19 @@
 import { SATISFACTION_ITEMS } from '../data/satisfactionContent'
 
 interface SurveyRow {
+  student_id: string
   fun_score: number
   understanding_score: number
   self_motivation_score: number
   real_life_score: number
   overall_score: number
   comment: string | null
+}
+
+interface StudentRow {
+  id: string
+  name: string
+  class_name: string
 }
 
 type ScoreKey = 'fun_score' | 'understanding_score' | 'self_motivation_score' | 'real_life_score' | 'overall_score'
@@ -19,13 +26,15 @@ const FIELD_MAP: Record<string, ScoreKey> = {
   overallScore: 'overall_score',
 }
 
-export function SatisfactionSummary({ surveys }: { surveys: SurveyRow[] }) {
+export function SatisfactionSummary({ surveys, students }: { surveys: SurveyRow[]; students: StudentRow[] }) {
   if (surveys.length === 0) return null
 
   const avg = (key: ScoreKey) => surveys.reduce((sum, s) => sum + s[key], 0) / surveys.length
   const pctSatisfied = (key: ScoreKey) => Math.round((surveys.filter((s) => s[key] >= 4).length / surveys.length) * 100)
 
   const overallPct = pctSatisfied('overall_score')
+  const doneIds = new Set(surveys.map((s) => s.student_id))
+  const notDone = students.filter((s) => !doneIds.has(s.id))
 
   return (
     <div className="rounded-xl p-5 border border-[var(--color-surface-3)] space-y-4" style={{ background: 'var(--color-surface)' }}>
@@ -72,6 +81,17 @@ export function SatisfactionSummary({ surveys }: { surveys: SurveyRow[] }) {
                 "{s.comment}"
               </p>
             ))}
+        </div>
+      )}
+
+      {notDone.length > 0 && (
+        <div className="pt-2 border-t border-[var(--color-surface-2)] space-y-1.5">
+          <p className="text-xs" style={{ color: 'var(--color-coral)' }}>
+            ⏳ ยังไม่ได้ทำแบบสำรวจ ({notDone.length} คน)
+          </p>
+          <p className="text-xs text-[var(--color-ink-dim)]">
+            {notDone.map((s) => `${s.name} (${s.class_name})`).join(', ')}
+          </p>
         </div>
       )}
     </div>

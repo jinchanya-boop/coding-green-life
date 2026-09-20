@@ -73,7 +73,7 @@ export default function TeacherDashboard() {
   const [attempts, setAttempts] = useState<AttemptRow[]>([])
   const [reflections, setReflections] = useState<ReflectionRow[]>([])
   const [surveys, setSurveys] = useState<
-    { fun_score: number; understanding_score: number; self_motivation_score: number; real_life_score: number; overall_score: number; comment: string | null }[]
+    { student_id: string; fun_score: number; understanding_score: number; self_motivation_score: number; real_life_score: number; overall_score: number; comment: string | null }[]
   >([])
   const [rubricRows, setRubricRows] = useState<{ student_id: string; criterion: string; level: number }[]>([])
   const [loading, setLoading] = useState(true)
@@ -213,7 +213,7 @@ export default function TeacherDashboard() {
             <ClassAnalytics students={students} />
             <InterventionAlerts students={students} />
             <RubricClassSummary rows={rubricRows} />
-            <SatisfactionSummary surveys={surveys} />
+            <SatisfactionSummary surveys={surveys} students={students} />
 
             <div className="rounded-xl border border-[var(--color-surface-3)] overflow-hidden" style={{ background: 'var(--color-surface)' }}>
               <table className="w-full text-sm">
