@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
-import { supabaseEnabled, fetchStudents, fetchAttempts, fetchReflections, fetchAllSatisfactionSurveys } from '../lib/supabase'
+import { supabaseEnabled, fetchStudents, fetchAttempts, fetchReflections, fetchAllSatisfactionSurveys, fetchAllRubrics } from '../lib/supabase'
 import { MISSIONS } from '../data/missions'
 import { RubricEditor } from '../components/RubricEditor'
+import { RubricClassSummary } from '../components/RubricClassSummary'
 import { ClassAnalytics } from '../components/ClassAnalytics'
 import { InterventionAlerts } from '../components/InterventionAlerts'
 import { SatisfactionSummary } from '../components/SatisfactionSummary'
@@ -74,6 +75,7 @@ export default function TeacherDashboard() {
   const [surveys, setSurveys] = useState<
     { fun_score: number; understanding_score: number; self_motivation_score: number; real_life_score: number; overall_score: number; comment: string | null }[]
   >([])
+  const [rubricRows, setRubricRows] = useState<{ student_id: string; criterion: string; level: number }[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [selectedId, setSelectedId] = useState<string | null>(null)
@@ -83,12 +85,13 @@ export default function TeacherDashboard() {
       setLoading(false)
       return
     }
-    Promise.all([fetchStudents(), fetchAttempts(), fetchReflections(), fetchAllSatisfactionSurveys()])
-      .then(([s, a, r, sv]) => {
+    Promise.all([fetchStudents(), fetchAttempts(), fetchReflections(), fetchAllSatisfactionSurveys(), fetchAllRubrics()])
+      .then(([s, a, r, sv, rb]) => {
         setStudents(s as StudentRow[])
         setAttempts(a as AttemptRow[])
         setReflections(r as ReflectionRow[])
         setSurveys(sv as typeof surveys)
+        setRubricRows(rb as typeof rubricRows)
       })
       .catch((e) => setError(e instanceof Error ? e.message : 'โหลดข้อมูลไม่สำเร็จ'))
       .finally(() => setLoading(false))
@@ -209,6 +212,7 @@ export default function TeacherDashboard() {
 
             <ClassAnalytics students={students} />
             <InterventionAlerts students={students} />
+            <RubricClassSummary rows={rubricRows} />
             <SatisfactionSummary surveys={surveys} />
 
             <div className="rounded-xl border border-[var(--color-surface-3)] overflow-hidden" style={{ background: 'var(--color-surface)' }}>
