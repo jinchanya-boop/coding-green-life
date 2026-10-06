@@ -68,7 +68,7 @@ function downloadCsv(filename: string, rows: string[][]) {
 }
 
 function getLocalData() {
-  const s = []; const a = []; const r = [];
+  const s: any[] = []; const a: any[] = []; const r: any[] = [];
   for (let i = 0; i < localStorage.length; i++) {
     const key = localStorage.key(i);
     if (key && key.startsWith('cgl_student_')) {
@@ -79,12 +79,12 @@ function getLocalData() {
           id: p.id, student_code: p.studentCode || '', name: p.name || '', class_name: p.className || '', avatar: p.avatar || 'fern',
           xp: p.xp || 0, level: p.level || 1, green_energy: p.greenEnergy || 0, badges: p.badges || [], missions: p.missions || {}, pre_test: p.preTest || null, post_test: p.postTest || null, updated_at: p.createdAt || new Date().toISOString()
         });
-        if (p.attempts) { p.attempts.forEach((att) => a.push({ student_id: p.id, mission_id: att.missionId, attempt_number: att.attemptNumber, score: att.score, max_score: att.maxScore, correct_count: att.correctCount, wrong_count: att.wrongCount, error_types: att.errorTypes || [], time_seconds: att.timeSeconds || 0, completed_at: att.completedAt || new Date().toISOString() })); }
-        if (p.reflections) { p.reflections.forEach((ref) => r.push({ student_id: p.id, mission_id: ref.missionId, learned: ref.learned, problem: ref.problem, solution: ref.solution, mistake: ref.mistake, improve: ref.improve, real_life_use: ref.realLifeUse, created_at: ref.createdAt || new Date().toISOString() })); }
+        if (p.attempts) { p.attempts.forEach((att: any) => a.push({ student_id: p.id, mission_id: att.missionId, attempt_number: att.attemptNumber, score: att.score, max_score: att.maxScore, correct_count: att.correctCount, wrong_count: att.wrongCount, error_types: att.errorTypes || [], time_seconds: att.timeSeconds || 0, completed_at: att.completedAt || new Date().toISOString() })); }
+        if (p.reflections) { p.reflections.forEach((ref: any) => r.push({ student_id: p.id, mission_id: ref.missionId, learned: ref.learned, problem: ref.problem, solution: ref.solution, mistake: ref.mistake, improve: ref.improve, real_life_use: ref.realLifeUse, created_at: ref.createdAt || new Date().toISOString() })); }
       } catch (e) {}
     }
   }
-  return { s: s, a: a, r: r };
+  return { s, a, r };
 }
 export default function TeacherDashboard() {
   const navigate = useNavigate()
@@ -117,7 +117,7 @@ export default function TeacherDashboard() {
       .catch((e) => {
         console.error('Supabase fetch failed', e);
         const local = getLocalData();
-        if (local.s.length > 0) { setStudents(local.s); setAttempts(local.a); setReflections(local.r); } else { setError(e instanceof Error ? e.message : Buffer.from('4LmA4LiB4Li04LiU4LiC4LmJ4Lit4Lic4Li04LiU4Lie4Lil4Liy4LiU4LmD4LiZ4LiB4Liy4Lij4LmC4Lir4Lil4LiU4LiC4LmJ4Lit4Lih4Li54LilICjguYHguKXguLDguYTguKHguYjguKHguLXguILguYnguK3guKHguLnguKXguYPguJnguYDguITguKPguLfguYjguK3guIfguJnguLXguYgp', 'base64').toString('utf8')); }
+        if (local.s.length > 0) { setStudents(local.s); setAttempts(local.a); setReflections(local.r); } else { setError(e instanceof Error ? e.message : 'เกิดข้อผิดพลาดในการโหลดข้อมูล (และไม่มีข้อมูลในเครื่องนี่)'); }
       })
       .finally(() => setLoading(false))
   }, [])

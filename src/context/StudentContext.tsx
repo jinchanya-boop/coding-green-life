@@ -216,7 +216,7 @@ export function StudentProvider({ children }: { children: ReactNode }) {
   }
 
   const resetProfile = () => {
-    localStorage.removeItem('cgl_active_student_id')
+    localStorage.clear()
     setProfile(null)
   }
 
