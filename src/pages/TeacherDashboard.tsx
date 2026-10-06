@@ -69,7 +69,7 @@ function downloadCsv(filename: string, rows: string[][]) {
 
 
 function getLocalData() {
-  const s: any[] = []; const a: any[] = []; const r: any[] = [];
+  const s = []; const a = []; const r = [];
   for (let i = 0; i < localStorage.length; i++) {
     const key = localStorage.key(i);
     if (key && key.startsWith('cgl_student_')) {
@@ -121,7 +121,7 @@ function getLocalData() {
       } catch (e) {}
     }
   }
-  return { s, a, r };
+  return { s: s as any[], a: a as any[], r: r as any[] };
 }
 
 export default function TeacherDashboard() {

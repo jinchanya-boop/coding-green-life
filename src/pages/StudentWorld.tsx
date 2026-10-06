@@ -1,4 +1,4 @@
-﻿import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { useStudent } from '../context/StudentContext'
 import { Avatar } from '../components/Avatar'
 import { StatBar } from '../components/StatBar'
@@ -11,7 +11,7 @@ import { MISSIONS, xpToNextLevel } from '../data/missions'
 const ALIGN_PATTERN: Array<'left' | 'center' | 'right'> = ['left', 'right', 'center']
 
 export default function StudentWorld() {
-  const { profile, heroLevelName, resetProfile } = useStudent()
+  const { profile, heroLevelName } = useStudent()
   const navigate = useNavigate()
 
   if (!profile) return null
@@ -36,13 +36,13 @@ export default function StudentWorld() {
           </div>
           <div className="text-right shrink-0">
             <p className="font-display font-semibold" style={{ color: 'var(--color-mint)' }}>
-              ðŸŒ± {profile.greenEnergy}
+              🌱 {profile.greenEnergy}
             </p>
-            <p className="text-[10px] text-[var(--color-ink-dim)]">Green Energy</p>
+                        <p className="text-[10px] text-[var(--color-ink-dim)]">Green Energy</p>
           </div>
           <button
             title="เปลี่ยนผู้เล่น / ออกจากระบบ"
-            onClick={() => { if (window.confirm("เปลี่ยนผู้เล่น? ข้อมูลในเครื่องนี้จะถูกล้าง")) { resetProfile(); navigate("/") } }}
+            onClick={() => { if (window.confirm("เปลี่ยนผู้เล่น? ข้อมูลในเครื่องนี้จะถูกล้าง")) { localStorage.removeItem('cgl_active_student_id'); window.location.href = '#/'; window.location.reload(); } }}
             className="ml-2 w-8 h-8 rounded-full flex items-center justify-center text-base shrink-0 hover:opacity-80 transition-opacity"
             style={{ background: "rgba(255,100,100,0.12)", border: "1px solid var(--color-coral)" }}
           >
@@ -51,7 +51,7 @@ export default function StudentWorld() {
         </div>
         <div className="max-w-3xl mx-auto px-5 pb-4">
           <StatBar
-            label={nextLevel.next ? `XP Â· à¸•à¹ˆà¸­à¹„à¸› ${nextLevel.next}` : 'XP Â· à¸£à¸°à¸”à¸±à¸šà¸ªà¸¹à¸‡à¸ªà¸¸à¸”à¹à¸¥à¹‰à¸§'}
+            label={nextLevel.next ? `XP · ต่อไป ${nextLevel.next}` : 'XP · ระดับสูงสุดแล้ว'}
             value={profile.xp}
             max={profile.xp + (nextLevel.remaining || 1)}
             color="var(--color-gold)"
@@ -69,13 +69,13 @@ export default function StudentWorld() {
             className="w-12 h-12 rounded-full flex items-center justify-center text-2xl shrink-0"
             style={{ background: 'rgba(244,185,66,0.12)', border: '2px solid var(--color-gold)' }}
           >
-            ðŸŽ¨
+            🎨
           </div>
           <div className="flex-1">
             <p className="font-display font-medium">Creator Studio</p>
-            <p className="text-xs text-[var(--color-ink-dim)]">à¸ªà¸£à¹‰à¸²à¸‡à¸œà¸¥à¸‡à¸²à¸™à¸­à¸´à¸ªà¸£à¸°à¸‚à¸­à¸‡à¸•à¸±à¸§à¹€à¸­à¸‡ à¹à¸¥à¹‰à¸§à¹ƒà¸«à¹‰à¹€à¸žà¸·à¹ˆà¸­à¸™à¸”à¸¹/à¹ƒà¸«à¹‰ Feedback à¹„à¸”à¹‰</p>
+            <p className="text-xs text-[var(--color-ink-dim)]">สร้างผลงานอิสระของตัวเอง แล้วให้เพื่อนดู/ให้ Feedback ได้</p>
           </div>
-          <span className="text-[var(--color-ink-dim)] shrink-0">â†’</span>
+          <span className="text-[var(--color-ink-dim)] shrink-0">→</span>
         </button>
 
         <button
@@ -87,13 +87,13 @@ export default function StudentWorld() {
             className="w-12 h-12 rounded-full flex items-center justify-center text-2xl shrink-0"
             style={{ background: 'rgba(94,234,212,0.12)', border: '2px solid var(--color-mint)' }}
           >
-            ðŸ“
+            📁
           </div>
           <div className="flex-1">
             <p className="font-display font-medium">Green Portfolio</p>
-            <p className="text-xs text-[var(--color-ink-dim)]">à¸£à¸§à¸¡à¸—à¸¸à¸à¸œà¸¥à¸‡à¸²à¸™ à¸„à¸°à¹à¸™à¸™ à¹à¸¥à¸°à¹€à¸«à¸£à¸µà¸¢à¸à¸•à¸£à¸²à¸‚à¸­à¸‡à¹€à¸˜à¸­à¹„à¸§à¹‰à¹ƒà¸™à¸«à¸™à¹‰à¸²à¹€à¸”à¸µà¸¢à¸§</p>
+            <p className="text-xs text-[var(--color-ink-dim)]">รวมทุกผลงาน คะแนน และเหรียญตราของเธอไว้ในหน้าเดียว</p>
           </div>
-          <span className="text-[var(--color-ink-dim)] shrink-0">â†’</span>
+          <span className="text-[var(--color-ink-dim)] shrink-0">→</span>
         </button>
 
         <button
@@ -105,13 +105,13 @@ export default function StudentWorld() {
             className="w-12 h-12 rounded-full flex items-center justify-center text-2xl shrink-0"
             style={{ background: 'rgba(94,234,212,0.12)', border: '2px solid var(--color-mint)' }}
           >
-            ðŸ§ª
+            🧪
           </div>
           <div className="flex-1">
             <p className="font-display font-medium">Coding Lab</p>
-            <p className="text-xs text-[var(--color-ink-dim)]">à¸žà¸·à¹‰à¸™à¸—à¸µà¹ˆà¸à¸¶à¸à¸à¸™à¸­à¸´à¸ªà¸£à¸° 7 à¹€à¸¥à¹€à¸§à¸¥ â€” à¹€à¸¥à¹ˆà¸™à¸‹à¹‰à¸³à¹„à¸”à¹‰à¹„à¸¡à¹ˆà¸ˆà¸³à¸à¸±à¸” à¹„à¸¡à¹ˆà¸œà¸¹à¸à¸à¸±à¸šà¸ à¸²à¸£à¸à¸´à¸ˆà¸«à¸¥à¸±à¸</p>
+            <p className="text-xs text-[var(--color-ink-dim)]">พื้นที่ฝึกฝนอิสระ 7 เลเวล — เล่นซ้ำได้ไม่จำกัด ไม่ผูกกับภารกิจหลัก</p>
           </div>
-          <span className="text-[var(--color-ink-dim)] shrink-0">â†’</span>
+          <span className="text-[var(--color-ink-dim)] shrink-0">→</span>
         </button>
 
         <button
@@ -123,13 +123,13 @@ export default function StudentWorld() {
             className="w-12 h-12 rounded-full flex items-center justify-center text-2xl shrink-0"
             style={{ background: 'rgba(168,181,174,0.12)', border: '2px solid var(--color-ink-dim)' }}
           >
-            ðŸ‘¥
+            👥
           </div>
           <div className="flex-1">
-            <p className="font-display font-medium">à¹€à¸žà¸·à¹ˆà¸­à¸™à¹† à¹„à¸›à¸–à¸¶à¸‡à¹„à¸«à¸™à¹à¸¥à¹‰à¸§</p>
-            <p className="text-xs text-[var(--color-ink-dim)]">à¸”à¸¹à¸„à¸§à¸²à¸¡à¸„à¸·à¸šà¸«à¸™à¹‰à¸²à¸‚à¸­à¸‡à¹€à¸žà¸·à¹ˆà¸­à¸™à¸£à¹ˆà¸§à¸¡à¸Šà¸±à¹‰à¸™ â€” à¹€à¸£à¸µà¸¢à¸‡à¸•à¸²à¸¡à¸Šà¸·à¹ˆà¸­ à¹„à¸¡à¹ˆà¹ƒà¸Šà¹ˆà¸­à¸±à¸™à¸”à¸±à¸šà¸„à¸°à¹à¸™à¸™</p>
+            <p className="font-display font-medium">เพื่อนๆ ไปถึงไหนแล้ว</p>
+            <p className="text-xs text-[var(--color-ink-dim)]">ดูความคืบหน้าของเพื่อนร่วมชั้น — เรียงตามชื่อ ไม่ใช่อันดับคะแนน</p>
           </div>
-          <span className="text-[var(--color-ink-dim)] shrink-0">â†’</span>
+          <span className="text-[var(--color-ink-dim)] shrink-0">→</span>
         </button>
 
         {profile.preTest && profile.postTest ? (
@@ -144,17 +144,17 @@ export default function StudentWorld() {
               className="w-12 h-12 rounded-full flex items-center justify-center text-2xl shrink-0"
               style={{ background: 'rgba(244,185,66,0.12)', border: '2px solid var(--color-gold)' }}
             >
-              ðŸ“
+              📝
             </div>
             <div className="flex-1">
-              <p className="font-display font-medium">{profile.preTest ? 'à¹à¸šà¸šà¸›à¸£à¸°à¹€à¸¡à¸´à¸™à¸«à¸¥à¸±à¸‡à¹€à¸£à¸µà¸¢à¸™ (Post-test)' : 'à¹à¸šà¸šà¸›à¸£à¸°à¹€à¸¡à¸´à¸™à¸à¹ˆà¸­à¸™à¹€à¸£à¸µà¸¢à¸™ (Pre-test)'}</p>
+              <p className="font-display font-medium">{profile.preTest ? 'แบบประเมินหลังเรียน (Post-test)' : 'แบบประเมินก่อนเรียน (Pre-test)'}</p>
               <p className="text-xs text-[var(--color-ink-dim)]">
                 {profile.preTest
-                  ? 'à¸—à¸³à¹€à¸¡à¸·à¹ˆà¸­à¸žà¸£à¹‰à¸­à¸¡ à¹€à¸žà¸·à¹ˆà¸­à¸”à¸¹à¸§à¹ˆà¸²à¸—à¸±à¸à¸©à¸°à¸‚à¸­à¸‡à¹€à¸˜à¸­à¸žà¸±à¸’à¸™à¸²à¹„à¸›à¹à¸„à¹ˆà¹„à¸«à¸™à¸«à¸¥à¸±à¸‡à¸œà¸ˆà¸à¸ à¸±à¸¢'
-                  : 'à¸—à¸³à¸à¹ˆà¸­à¸™à¹€à¸£à¸´à¹ˆà¸¡à¸œà¸ˆà¸à¸ à¸±à¸¢ à¹€à¸žà¸·à¹ˆà¸­à¸§à¸±à¸”à¸žà¸·à¹‰à¸™à¸à¸²à¸™à¸—à¸±à¸à¸©à¸°à¸•à¸±à¹‰à¸‡à¸•à¹‰à¸™à¸‚à¸­à¸‡à¹€à¸˜à¸­'}
+                  ? 'ทำเมื่อพร้อม เพื่อดูว่าทักษะของเธอพัฒนาไปแค่ไหนหลังผจญภัย'
+                  : 'ทำก่อนเริ่มผจญภัย เพื่อวัดพื้นฐานทักษะตั้งต้นของเธอ'}
               </p>
             </div>
-            <span className="text-[var(--color-ink-dim)] shrink-0">â†’</span>
+            <span className="text-[var(--color-ink-dim)] shrink-0">→</span>
           </button>
         )}
 
@@ -168,13 +168,13 @@ export default function StudentWorld() {
               className="w-12 h-12 rounded-full flex items-center justify-center text-2xl shrink-0"
               style={{ background: 'rgba(94,234,212,0.12)', border: '2px solid var(--color-mint)' }}
             >
-              ðŸŒŸ
+              🌟
             </div>
             <div className="flex-1">
-              <p className="font-display font-medium">à¹à¸šà¸šà¸ªà¸³à¸£à¸§à¸ˆà¸„à¸§à¸²à¸¡à¸žà¸¶à¸‡à¸žà¸­à¹ƒà¸ˆ</p>
-              <p className="text-xs text-[var(--color-ink-dim)]">à¸šà¸­à¸à¸„à¸§à¸²à¸¡à¸£à¸¹à¹‰à¸ªà¸¶à¸à¸‚à¸­à¸‡à¹€à¸˜à¸­à¸—à¸µà¹ˆà¸¡à¸µà¸•à¹ˆà¸­ Coding for Green Life à¹ƒà¸«à¹‰à¸„à¸£à¸¹à¸Ÿà¸±à¸‡à¸«à¸™à¹ˆà¸­à¸¢</p>
+              <p className="font-display font-medium">แบบสำรวจความพึงพอใจ</p>
+              <p className="text-xs text-[var(--color-ink-dim)]">บอกความรู้สึกของเธอที่มีต่อ Coding for Green Life ให้ครูฟังหน่อย</p>
             </div>
-            <span className="text-[var(--color-ink-dim)] shrink-0">â†’</span>
+            <span className="text-[var(--color-ink-dim)] shrink-0">→</span>
           </button>
         )}
 
@@ -184,7 +184,7 @@ export default function StudentWorld() {
           <div>
             <h2 className="font-display text-xl font-semibold sr-only">GREEN CITY</h2>
             <p className="text-sm text-[var(--color-ink-dim)]">
-              à¸œà¹ˆà¸²à¸™à¹à¸¥à¹‰à¸§ {completedCount} / {MISSIONS.length} à¸ à¸²à¸£à¸à¸´à¸ˆ
+              ผ่านแล้ว {completedCount} / {MISSIONS.length} ภารกิจ
             </p>
           </div>
           {profile.badges.length > 0 && (
@@ -230,4 +230,3 @@ export default function StudentWorld() {
     </div>
   )
 }
-
