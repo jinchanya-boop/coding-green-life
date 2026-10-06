@@ -12,17 +12,28 @@ export default function SatisfactionSurvey() {
   const [scores, setScores] = useState<Record<string, number>>({})
   const [comment, setComment] = useState('')
   const [loading, setLoading] = useState(true)
-  const [alreadyDone, setAlreadyDone] = useState(false)
+  
   const [submitted, setSubmitted] = useState(false)
 
+    const [alreadyDone, setAlreadyDone] = useState(false)
   useEffect(() => {
     if (!profile || !supabaseEnabled) {
       setLoading(false)
       return
     }
     fetchMySatisfactionSurvey(profile.id)
-      .then((row) => {
-        if (row) setAlreadyDone(true)
+      .then((row: any) => {
+        if (row) {
+          setAlreadyDone(true)
+          setScores({
+            funScore: row.fun_score || 0,
+            understandingScore: row.understanding_score || 0,
+            selfMotivationScore: row.self_motivation_score || 0,
+            realLifeScore: row.real_life_score || 0,
+            overallScore: row.overall_score || 0,
+          })
+          if (row.comment) setComment(row.comment)
+        }
       })
       .finally(() => setLoading(false))
   }, [profile])
@@ -66,7 +77,7 @@ export default function SatisfactionSurvey() {
         )}
         {loading && <p className="text-sm text-[var(--color-ink-dim)]">กำลังโหลด...</p>}
 
-        {!loading && (alreadyDone || submitted) && (
+        {!loading && submitted && (
           <div className="text-center space-y-4 py-8">
             <div className="text-5xl">🌟</div>
             <Mascot mood="great" message="ขอบคุณที่สละเวลาตอบแบบสำรวจนะ! ความเห็นของเธอช่วยให้ครูปรับปรุงแพลตฟอร์มนี้ให้ดีขึ้นได้" />
@@ -80,7 +91,7 @@ export default function SatisfactionSurvey() {
           </div>
         )}
 
-        {!loading && !alreadyDone && !submitted && (
+        {!loading && !submitted && (
           <>
             <Mascot mood="idle" message="บอกความรู้สึกของเธอที่มีต่อ Coding for Green Life หน่อยนะ ไม่มีคำตอบผิด ตอบตามความรู้สึกจริงได้เลย!" />
             {SATISFACTION_ITEMS.map((item) => (
@@ -124,7 +135,7 @@ export default function SatisfactionSurvey() {
               className="w-full rounded-lg py-3 font-display font-medium text-[var(--color-bg-deep)] disabled:opacity-40"
               style={{ background: 'var(--color-mint)' }}
             >
-              ส่งแบบสำรวจ
+              {alreadyDone ? "อัปเดตแบบสำรวจ" : "ส่งแบบสำรวจ"}
             </button>
           </>
         )}
