@@ -68,6 +68,21 @@ export function StudentProvider({ children }: { children: ReactNode }) {
   }
 
   const createProfile = (name: string, className: string, avatar: AvatarId) => {
+    const exactName = name.trim();
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && key.startsWith('cgl_student_')) {
+        try {
+          const p = JSON.parse(localStorage.getItem(key) || '{}');
+          if (p.name === exactName) {
+            p.avatar = avatar;
+            if (className.trim()) p.className = className.trim();
+            persist(p);
+            return;
+          }
+        } catch (e) {}
+      }
+    }
     const p: StudentProfile = {
       id: newId(),
       studentCode: name.trim().slice(0, 2).toUpperCase() + Math.floor(1000 + Math.random() * 9000),
