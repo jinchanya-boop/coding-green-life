@@ -42,7 +42,7 @@ export default function StudentWorld() {
           </div>
           <button
             title="เปลี่ยนผู้เล่น / ออกจากระบบ"
-            onClick={() => { if (window.confirm("เปลี่ยนผู้เล่น? ข้อมูลในเครื่องนี้จะถูกล้าง")) { localStorage.removeItem('cgl_active_student_id'); window.location.href = '#/'; window.location.reload(); } }}
+            onClick={() => { if (window.confirm("ออกจากระบบ? (ข้อมูลของคุณจะยังถูกบันทึกไว้ในเครื่องนี้)")) { localStorage.removeItem('cgl_active_student_id'); window.location.href = '#/'; window.location.reload(); } }}
             className="ml-2 w-8 h-8 rounded-full flex items-center justify-center text-base shrink-0 hover:opacity-80 transition-opacity"
             style={{ background: "rgba(255,100,100,0.12)", border: "1px solid var(--color-coral)" }}
           >

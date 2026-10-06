@@ -28,6 +28,23 @@ function timeAgo(iso: string): string {
   return `${days} วันที่แล้ว`
 }
 
+function getLocalData() {
+  const s: any[] = [];
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (key && key.startsWith('cgl_student_')) {
+      try {
+        const p = JSON.parse(localStorage.getItem(key) || '{}');
+        if (!p.id) continue;
+        s.push({
+          id: p.id, name: p.name || '', class_name: p.className || '', avatar: p.avatar || 'fern',
+          xp: p.xp || 0, badges: p.badges || [], missions: p.missions || {}, updated_at: p.createdAt || new Date().toISOString()
+        });
+      } catch (e) {}
+    }
+  }
+  return s;
+}
 export default function ClassProgress() {
   const navigate = useNavigate()
   const [students, setStudents] = useState<StudentRow[]>([])
@@ -35,13 +52,13 @@ export default function ClassProgress() {
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    if (!supabaseEnabled) {
-      setLoading(false)
-      return
-    }
+    setLoading(true)
     fetchStudents()
       .then((s) => setStudents(s as StudentRow[]))
-      .catch((e) => setError(e instanceof Error ? e.message : 'โหลดข้อมูลไม่สำเร็จ'))
+      .catch((e) => {
+        const local = getLocalData();
+        if (local.length > 0) { setStudents(local); setError(null); } else { setError(e instanceof Error ? e.message : 'เกิดข้อผิดพลาดในการโหลดข้อมูล (และไม่มีข้อมูลในเครื่องนี่)'); }
+      })
       .finally(() => setLoading(false))
   }, [])
 
