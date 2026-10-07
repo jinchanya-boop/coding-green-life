@@ -198,3 +198,19 @@ export async function fetchAllSatisfactionSurveys() {
   if (error) throw error
   return data ?? []
 }
+
+export async function fetchStudentByName(name: string) {
+  if (!supabase) return null
+  try {
+    const { data, error } = await supabase
+      .from('students')
+      .select('*')
+      .eq('name', name.trim())
+      .limit(1)
+      .single()
+    if (error || !data) return null
+    return data
+  } catch (e) {
+    return null
+  }
+}

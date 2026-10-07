@@ -1,13 +1,14 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
 import type { AvatarId, Badge, LabLevelState, MissionAttempt, Reflection, StudentProfile, AssessmentSkill } from '../types'
 import { MISSIONS, getHeroLevel } from '../data/missions'
+import { syncStudent, fetchStudentByName, supabaseEnabled, syncAttempt, syncReflection } from '../lib/supabase';
 import { LAB_LEVELS } from '../data/codingLab'
 import { loadActiveProfile, newId, saveProfile } from '../lib/storage'
-import { syncAttempt, syncReflection, syncStudent, supabaseEnabled } from '../lib/supabase'
+
 
 interface StudentContextValue {
   profile: StudentProfile | null
-  createProfile: (name: string, className: string, avatar: AvatarId) => void
+  createProfile: (name: string, className: string, avatar: AvatarId) => Promise<void>
   recordMissionResult: (
     missionId: string,
     result: { score: number; maxScore: number; correctCount: number; wrongCount: number; errorTypes: string[]; timeSeconds: number },
@@ -67,8 +68,10 @@ export function StudentProvider({ children }: { children: ReactNode }) {
     void syncStudent(p)
   }
 
-  const createProfile = (name: string, className: string, avatar: AvatarId) => {
+  const createProfile = async (name: string, className: string, avatar: AvatarId) => {
     const exactName = name.trim();
+    
+    // 1. Try to find in localStorage first (fastest)
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i);
       if (key && key.startsWith('cgl_student_')) {
@@ -83,6 +86,35 @@ export function StudentProvider({ children }: { children: ReactNode }) {
         } catch (e) {}
       }
     }
+
+    // 2. If not found locally, try fetching from Supabase
+    try {
+      const row = await fetchStudentByName(exactName);
+      if (row) {
+        const p: StudentProfile = {
+          id: row.id,
+          studentCode: row.student_code,
+          name: row.name,
+          className: className.trim() || row.class_name,
+          avatar: avatar,
+          xp: row.xp,
+          level: row.level,
+          greenEnergy: row.green_energy,
+          badges: row.badges || [],
+          missions: row.missions || initialMissionsMap(),
+          codingLab: row.coding_lab || initialLabMap(),
+          attempts: [],
+          reflections: [],
+          createdAt: row.created_at,
+        };
+        persist(p);
+        return;
+      }
+    } catch (err) {
+      console.error(err);
+    }
+
+    // 3. If completely new, create new profile
     const p: StudentProfile = {
       id: newId(),
       studentCode: name.trim().slice(0, 2).toUpperCase() + Math.floor(1000 + Math.random() * 9000),

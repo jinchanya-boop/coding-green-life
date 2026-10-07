@@ -14,9 +14,11 @@ export default function Onboarding() {
 
   const canStart = name.trim().length >= 2 && className.trim().length >= 1
 
-  const handleStart = () => {
-    if (!canStart) return
-    createProfile(name, className, avatar)
+  const [isStarting, setIsStarting] = useState(false);
+  const handleStart = async () => {
+    if (!canStart || isStarting) return
+    setIsStarting(true);
+    await createProfile(name, className, avatar)
     navigate('/world')
   }
 
@@ -79,7 +81,7 @@ export default function Onboarding() {
 
           <button
             onClick={handleStart}
-            disabled={!canStart}
+            disabled={!canStart || isStarting}
             className="w-full rounded-lg py-3 font-display font-medium text-[var(--color-bg-deep)] disabled:opacity-40 disabled:cursor-not-allowed transition-opacity"
             style={{ background: 'var(--color-mint)' }}
           >
