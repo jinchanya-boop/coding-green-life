@@ -69,7 +69,7 @@ export function StudentProvider({ children }: { children: ReactNode }) {
   }
 
   const createProfile = async (name: string, className: string, avatar: AvatarId) => {
-    const exactName = name.trim();
+    const exactName = name.trim().replace(/\s+/g, ' ');
     
     // 1. Try to find in localStorage first (fastest)
     for (let i = 0; i < localStorage.length; i++) {
