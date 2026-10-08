@@ -101,11 +101,13 @@ export function StudentProvider({ children }: { children: ReactNode }) {
           xp: row.xp,
           level: row.level,
           greenEnergy: row.green_energy,
-          badges: row.badges || [],
+                    badges: row.badges || [],
           missions: row.missions || initialMissionsMap(),
           codingLab: row.coding_lab || initialLabMap(),
           attempts: [],
           reflections: [],
+          preTest: row.pre_test || undefined,
+          postTest: row.post_test || undefined,
           createdAt: row.created_at,
         };
         persist(p);
