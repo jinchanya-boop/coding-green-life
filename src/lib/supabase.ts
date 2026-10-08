@@ -214,3 +214,19 @@ export async function fetchStudentByName(name: string) {
     return null
   }
 }
+
+export async function fetchStudentByCode(code: string) {
+  if (!supabase) return null
+  try {
+    const { data, error } = await supabase
+      .from('students')
+      .select('*')
+      .eq('student_code', code.trim())
+      .limit(1)
+      .single()
+    if (error || !data) return null
+    return data
+  } catch (e) {
+    return null
+  }
+}

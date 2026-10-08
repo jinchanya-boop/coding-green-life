@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
 import type { AvatarId, Badge, LabLevelState, MissionAttempt, Reflection, StudentProfile, AssessmentSkill } from '../types'
 import { MISSIONS, getHeroLevel } from '../data/missions'
-import { syncStudent, fetchStudentByName, supabaseEnabled, syncAttempt, syncReflection } from '../lib/supabase';
+import { syncStudent, fetchStudentByName, fetchStudentByCode, supabaseEnabled, syncAttempt, syncReflection } from '../lib/supabase';
 import { LAB_LEVELS } from '../data/codingLab'
 import { loadActiveProfile, newId, saveProfile } from '../lib/storage'
 
@@ -9,6 +9,7 @@ import { loadActiveProfile, newId, saveProfile } from '../lib/storage'
 interface StudentContextValue {
   profile: StudentProfile | null
   createProfile: (name: string, className: string, avatar: AvatarId) => Promise<void>
+  loginWithCode: (code: string) => Promise<boolean>
   recordMissionResult: (
     missionId: string,
     result: { score: number; maxScore: number; correctCount: number; wrongCount: number; errorTypes: string[]; timeSeconds: number },
@@ -133,6 +134,53 @@ export function StudentProvider({ children }: { children: ReactNode }) {
     }
     persist(p)
   }
+
+  const loginWithCode = async (code: string): Promise<boolean> => {
+    const exactCode = code.trim();
+    if (!exactCode) return false;
+
+    // 1. check localStorage
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && key.startsWith('cgl_student_')) {
+        try {
+          const p = JSON.parse(localStorage.getItem(key) || '{}');
+          if (p.studentCode === exactCode) {
+            persist(p);
+            return true;
+          }
+        } catch (e) {}
+      }
+    }
+
+    // 2. check supabase
+    try {
+      const row = await fetchStudentByCode(exactCode);
+      if (row) {
+        const p: StudentProfile = {
+          id: row.id,
+          studentCode: row.student_code,
+          name: row.name,
+          className: row.class_name,
+          avatar: row.avatar as AvatarId,
+          xp: row.xp,
+          level: row.level,
+          greenEnergy: row.green_energy,
+          badges: row.badges || [],
+          missions: row.missions || initialMissionsMap(),
+          codingLab: row.coding_lab || initialLabMap(),
+          attempts: [],
+          reflections: [],
+          createdAt: row.created_at,
+        };
+        persist(p);
+        return true;
+      }
+    } catch (err) {}
+
+    return false;
+  };
+
 
   const isMissionUnlocked = (missionId: string) => {
     if (!profile) return false
@@ -271,7 +319,8 @@ export function StudentProvider({ children }: { children: ReactNode }) {
 
   return (
     <StudentContext.Provider
-      value={{ profile, createProfile, recordMissionResult, recordLabLevel, recordAssessment, heroLevelName, isMissionUnlocked, resetProfile }}
+      value={{ profile, createProfile,
+    loginWithCode, recordMissionResult, recordLabLevel, recordAssessment, heroLevelName, isMissionUnlocked, resetProfile }}
     >
       {children}
     </StudentContext.Provider>
