@@ -41,6 +41,13 @@ export default function StudentWorld() {
                         <p className="text-[10px] text-[var(--color-ink-dim)]">Green Energy</p>
           </div>
           <button
+            onClick={() => navigate('/survey')}
+            title="ทำแบบประเมินความพึงพอใจ"
+            className="ml-2 px-3 py-1.5 rounded-lg text-xs font-medium bg-[var(--color-gold)] text-[var(--color-bg-deep)] hover:opacity-90 transition-opacity"
+          >
+            📋 แบบประเมิน
+          </button>
+          <button
             title="เปลี่ยนผู้เล่น / ออกจากระบบ"
             onClick={() => { if (window.confirm("ออกจากระบบ? (ข้อมูลของคุณจะยังถูกบันทึกไว้ในเครื่องนี้)")) { localStorage.removeItem('cgl_active_student_id'); window.location.href = '#/'; window.location.reload(); } }}
             className="ml-2 w-8 h-8 rounded-full flex items-center justify-center text-base shrink-0 hover:opacity-80 transition-opacity"
