@@ -227,8 +227,8 @@ const exportReflectionsCsv = () => {
         (r.problem || '').replace(/"/g, '""'),
         (r.solution || '').replace(/"/g, '""'),
         (r.mistake || '').replace(/"/g, '""'),
-        (r.improvement || '').replace(/"/g, '""'),
-        (r.real_life_usage || '').replace(/"/g, '""'),
+        (r.improve || '').replace(/"/g, '""'),
+        (r.real_life_use || '').replace(/"/g, '""'),
         r.created_at
       ].map(v => `"${v}"`).join(',')
     })
