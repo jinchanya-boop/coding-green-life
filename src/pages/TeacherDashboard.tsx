@@ -184,6 +184,37 @@ export default function TeacherDashboard() {
     downloadCsv('coding-green-life-attempts.csv', rows)
   }
 
+
+  const exportSurveysCsv = () => {
+    if (surveys.length === 0) return
+    const headers = ['รหัสผู้เล่น', 'วันที่ประเมิน', 'ข้อ 1 (เข้าใจ)', 'ข้อ 2 (สนุก)', 'ข้อ 3 (ง่าย)', 'ข้อ 4 (ชอบ)', 'ข้อ 5 (อยากเรียนอีก)', 'ข้อเสนอแนะ']
+    
+    const rows = surveys.map(s => {
+      const student = students.find(st => st.id === s.student_id)
+      const code = student ? student.student_code : s.student_id.substring(0,6)
+      const scores = s.scores || {}
+      return [
+        code,
+        new Date(s.created_at).toLocaleString('th-TH'),
+        scores['q1'] || '',
+        scores['q2'] || '',
+        scores['q3'] || '',
+        scores['q4'] || '',
+        scores['q5'] || '',
+        (s.comment || '').replace(/"/g, '""')
+      ].map(v => `"${v}"`).join(',')
+    })
+    
+    const csvContent = "data:text/csv;charset=utf-8,\uFEFF" + [headers.join(','), ...rows].join('\n')
+    const encodedUri = encodeURI(csvContent)
+    const link = document.createElement('a')
+    link.setAttribute('href', encodedUri)
+    link.setAttribute('download', 'cgl_satisfaction_surveys.csv')
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+  }
+
   return (
     <div className="min-h-screen pb-16" style={{ background: 'var(--color-bg)' }}>
       <header className="border-b border-[var(--color-surface-2)] px-6 py-5">
