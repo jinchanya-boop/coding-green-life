@@ -187,20 +187,18 @@ export default function TeacherDashboard() {
 
   const exportSurveysCsv = () => {
     if (surveys.length === 0) return
-    const headers = ['รหัสผู้เล่น', 'วันที่ประเมิน', 'ข้อ 1 (เข้าใจ)', 'ข้อ 2 (สนุก)', 'ข้อ 3 (ง่าย)', 'ข้อ 4 (ชอบ)', 'ข้อ 5 (อยากเรียนอีก)', 'ข้อเสนอแนะ']
+    const headers = ['รหัสผู้เล่น', 'ข้อ 1 (สนุก)', 'ข้อ 2 (เข้าใจ)', 'ข้อ 3 (อยากเรียนรู้)', 'ข้อ 4 (ชีวิตประจำวัน)', 'ข้อ 5 (ภาพรวม)', 'ข้อเสนอแนะ']
     
     const rows = surveys.map(s => {
       const student = students.find(st => st.id === s.student_id)
       const code = student ? student.student_code : s.student_id.substring(0,6)
-      const scores = s.scores || {}
       return [
         code,
-        new Date(s.created_at).toLocaleString('th-TH'),
-        scores['q1'] || '',
-        scores['q2'] || '',
-        scores['q3'] || '',
-        scores['q4'] || '',
-        scores['q5'] || '',
+        s.fun_score || '',
+        s.understanding_score || '',
+        s.self_motivation_score || '',
+        s.real_life_score || '',
+        s.overall_score || '',
         (s.comment || '').replace(/"/g, '""')
       ].map(v => `"${v}"`).join(',')
     })
@@ -257,6 +255,13 @@ export default function TeacherDashboard() {
               >
                 ⬇ Export คะแนนรายภารกิจ (CSV)
               </button>
+            <button
+              onClick={exportSurveysCsv}
+              className="px-4 py-2 bg-[var(--color-gold)] text-[var(--color-bg-deep)] rounded-lg text-sm font-medium hover:bg-opacity-90 transition-colors"
+            >
+              Export แบบประเมินความพึงพอใจ (CSV)
+            </button>
+
               <button
                 onClick={() => navigate('/teacher/evidence')}
                 className="rounded-lg px-4 py-2.5 text-sm font-medium border ml-auto"
