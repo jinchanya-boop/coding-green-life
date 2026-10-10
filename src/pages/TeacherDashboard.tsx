@@ -213,6 +213,36 @@ export default function TeacherDashboard() {
     document.body.removeChild(link)
   }
 
+const exportReflectionsCsv = () => {
+    if (reflections.length === 0) return
+    const headers = ['student_code', 'mission_id', 'learned', 'problem', 'solution', 'mistake', 'improvement', 'real_life_usage', 'created_at']
+    
+    const rows = reflections.map(r => {
+      const student = students.find(s => s.id === r.student_id)
+      const code = student ? student.student_code : r.student_id.substring(0,6)
+      return [
+        code,
+        r.mission_id,
+        (r.learned || '').replace(/"/g, '""'),
+        (r.problem || '').replace(/"/g, '""'),
+        (r.solution || '').replace(/"/g, '""'),
+        (r.mistake || '').replace(/"/g, '""'),
+        (r.improvement || '').replace(/"/g, '""'),
+        (r.real_life_usage || '').replace(/"/g, '""'),
+        r.created_at
+      ].map(v => `"${v}"`).join(',')
+    })
+    
+    const csvContent = "data:text/csv;charset=utf-8,\uFEFF" + [headers.join(','), ...rows].join('\n')
+    const encodedUri = encodeURI(csvContent)
+    const link = document.createElement('a')
+    link.setAttribute('href', encodedUri)
+    link.setAttribute('download', 'cgl_reflections.csv')
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+  }
+
   return (
     <div className="min-h-screen pb-16" style={{ background: 'var(--color-bg)' }}>
       <header className="border-b border-[var(--color-surface-2)] px-6 py-5">
@@ -261,6 +291,13 @@ export default function TeacherDashboard() {
             >
               Export แบบประเมินความพึงพอใจ (CSV)
             </button>
+            <button
+              onClick={exportReflectionsCsv}
+              className="px-4 py-2 bg-[var(--color-coral)] text-white rounded-lg text-sm font-medium hover:bg-opacity-90 transition-colors"
+            >
+              Export สะท้อนคิด (CSV)
+            </button>
+
 
               <button
                 onClick={() => navigate('/teacher/evidence')}
